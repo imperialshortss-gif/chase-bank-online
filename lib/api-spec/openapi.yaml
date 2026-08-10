@@ -1,0 +1,1059 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: Chase Bank Online Banking API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: auth
+    description: Authentication
+  - name: users
+    description: User operations
+  - name: transactions
+    description: Transaction operations
+  - name: transfers
+    description: Transfer operations
+  - name: admin
+    description: Admin operations
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login with username and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current authenticated user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/me:
+    get:
+      operationId: getUserProfile
+      tags: [users]
+      summary: Get current user profile
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+    put:
+      operationId: updateUserProfile
+      tags: [users]
+      summary: Update current user profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileRequest"
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+
+  /users/me/dashboard:
+    get:
+      operationId: getDashboard
+      tags: [users]
+      summary: Get dashboard summary for current user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /transactions:
+    get:
+      operationId: getTransactions
+      tags: [transactions]
+      summary: Get transactions for current user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [Processing, Completed, Cancelled]
+      responses:
+        "200":
+          description: List of transactions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionListResponse"
+
+  /transfers:
+    post:
+      operationId: submitTransfer
+      tags: [transfers]
+      summary: Submit a fund transfer
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransferRequest"
+      responses:
+        "201":
+          description: Transfer submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransferResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    get:
+      operationId: getTransfers
+      tags: [transfers]
+      summary: Get transfers for current user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of transfers
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransferListResponse"
+
+  /transfers/{id}/receipt:
+    get:
+      operationId: getTransferReceipt
+      tags: [transfers]
+      summary: Get transfer receipt data
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Transfer receipt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransferReceiptResponse"
+
+  /admin/login:
+    post:
+      operationId: adminLogin
+      tags: [admin]
+      summary: Admin login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Admin login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/stats:
+    get:
+      operationId: getAdminStats
+      tags: [admin]
+      summary: Get admin dashboard statistics
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Admin statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStats"
+
+  /admin/users:
+    get:
+      operationId: getAdminUsers
+      tags: [admin]
+      summary: List all users
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUserListResponse"
+    post:
+      operationId: createAdminUser
+      tags: [admin]
+      summary: Create a new user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+
+  /admin/users/{id}:
+    get:
+      operationId: getAdminUser
+      tags: [admin]
+      summary: Get user by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+    put:
+      operationId: updateAdminUser
+      tags: [admin]
+      summary: Update user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequest"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+    delete:
+      operationId: deleteAdminUser
+      tags: [admin]
+      summary: Delete user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /admin/users/{id}/status:
+    put:
+      operationId: updateUserStatus
+      tags: [admin]
+      summary: Suspend or activate user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateStatusRequest"
+      responses:
+        "200":
+          description: Status updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+
+  /admin/users/{id}/balance:
+    put:
+      operationId: updateUserBalance
+      tags: [admin]
+      summary: Set, increase, or decrease user balance
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBalanceRequest"
+      responses:
+        "200":
+          description: Balance updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+
+  /admin/users/{id}/transactions:
+    post:
+      operationId: addAdminTransaction
+      tags: [admin]
+      summary: Add a transaction for a user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddTransactionRequest"
+      responses:
+        "201":
+          description: Transaction added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
+
+  /admin/users/{id}/transactions/list:
+    get:
+      operationId: getAdminUserTransactions
+      tags: [admin]
+      summary: Get all transactions for a specific user
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Transaction list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionListResponse"
+
+  /admin/transfers:
+    get:
+      operationId: getAdminTransfers
+      tags: [admin]
+      summary: List all transfers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [Processing, Completed, Cancelled]
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of transfers
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminTransferListResponse"
+
+  /admin/transfers/{id}/status:
+    put:
+      operationId: updateTransferStatus
+      tags: [admin]
+      summary: Update transfer status
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTransferStatusRequest"
+      responses:
+        "200":
+          description: Transfer status updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminTransfer"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      required:
+        - error
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        rememberMe:
+          type: boolean
+      required:
+        - username
+        - password
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/UserProfile"
+        isAdmin:
+          type: boolean
+      required:
+        - token
+        - isAdmin
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        accountNumber:
+          type: string
+        accountType:
+          type: string
+        accountStatus:
+          type: string
+        availableBalance:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - fullName
+        - username
+        - accountNumber
+        - accountType
+        - accountStatus
+        - availableBalance
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+
+    DashboardSummary:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/UserProfile"
+        currentBalance:
+          type: number
+        monthlyDeposits:
+          type: number
+        monthlyWithdrawals:
+          type: number
+        totalTransactions:
+          type: integer
+        recentTransactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Transaction"
+      required:
+        - user
+        - currentBalance
+        - monthlyDeposits
+        - monthlyWithdrawals
+        - totalTransactions
+        - recentTransactions
+
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+        transactionReference:
+          type: string
+        beneficiaryName:
+          type: string
+        bankName:
+          type: string
+        accountNumber:
+          type: string
+        routingNumber:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+        debit:
+          type: number
+        credit:
+          type: number
+        balanceAfter:
+          type: number
+        description:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - transactionReference
+        - amount
+        - currency
+        - status
+        - createdAt
+
+    TransactionListResponse:
+      type: object
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Transaction"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required:
+        - transactions
+        - total
+        - page
+        - limit
+
+    TransferRequest:
+      type: object
+      properties:
+        beneficiaryName:
+          type: string
+        bankName:
+          type: string
+        accountNumber:
+          type: string
+        routingNumber:
+          type: string
+        country:
+          type: string
+        amount:
+          type: number
+        reference:
+          type: string
+      required:
+        - beneficiaryName
+        - bankName
+        - accountNumber
+        - routingNumber
+        - country
+        - amount
+
+    TransferResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        transactionReference:
+          type: string
+        beneficiaryName:
+          type: string
+        bankName:
+          type: string
+        accountNumber:
+          type: string
+        routingNumber:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        estimatedCompletion:
+          type: string
+      required:
+        - id
+        - transactionReference
+        - beneficiaryName
+        - bankName
+        - accountNumber
+        - routingNumber
+        - amount
+        - currency
+        - status
+        - createdAt
+        - estimatedCompletion
+
+    TransferListResponse:
+      type: object
+      properties:
+        transfers:
+          type: array
+          items:
+            $ref: "#/components/schemas/TransferResponse"
+        total:
+          type: integer
+      required:
+        - transfers
+        - total
+
+    TransferReceiptResponse:
+      type: object
+      properties:
+        transfer:
+          $ref: "#/components/schemas/TransferResponse"
+        senderName:
+          type: string
+        senderAccountNumber:
+          type: string
+      required:
+        - transfer
+        - senderName
+        - senderAccountNumber
+
+    AdminStats:
+      type: object
+      properties:
+        totalUsers:
+          type: integer
+        activeUsers:
+          type: integer
+        suspendedUsers:
+          type: integer
+        totalDeposits:
+          type: number
+        totalWithdrawals:
+          type: number
+        pendingTransfers:
+          type: integer
+        completedTransfers:
+          type: integer
+      required:
+        - totalUsers
+        - activeUsers
+        - suspendedUsers
+        - totalDeposits
+        - totalWithdrawals
+        - pendingTransfers
+        - completedTransfers
+
+    AdminUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        accountNumber:
+          type: string
+        accountType:
+          type: string
+        accountStatus:
+          type: string
+        availableBalance:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - fullName
+        - username
+        - accountNumber
+        - accountType
+        - accountStatus
+        - availableBalance
+
+    AdminUserListResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminUser"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required:
+        - users
+        - total
+        - page
+        - limit
+
+    CreateUserRequest:
+      type: object
+      properties:
+        fullName:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        accountNumber:
+          type: string
+        accountType:
+          type: string
+        accountStatus:
+          type: string
+        availableBalance:
+          type: number
+      required:
+        - fullName
+        - username
+        - password
+        - accountType
+        - accountStatus
+        - availableBalance
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        accountType:
+          type: string
+        accountStatus:
+          type: string
+
+    UpdateStatusRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [Active, Suspended]
+      required:
+        - status
+
+    UpdateBalanceRequest:
+      type: object
+      properties:
+        action:
+          type: string
+          enum: [set, increase, decrease]
+        amount:
+          type: number
+      required:
+        - action
+        - amount
+
+    AddTransactionRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [deposit, withdrawal, debit, credit]
+        amount:
+          type: number
+        description:
+          type: string
+        transactionDate:
+          type: string
+          format: date
+      required:
+        - type
+        - amount
+
+    AdminTransfer:
+      type: object
+      properties:
+        id:
+          type: integer
+        transactionReference:
+          type: string
+        userId:
+          type: integer
+        userName:
+          type: string
+        userAccountNumber:
+          type: string
+        beneficiaryName:
+          type: string
+        bankName:
+          type: string
+        accountNumber:
+          type: string
+        routingNumber:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+        status:
+          type: string
+        reference:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - transactionReference
+        - userId
+        - beneficiaryName
+        - bankName
+        - accountNumber
+        - amount
+        - currency
+        - status
+        - createdAt
+
+    AdminTransferListResponse:
+      type: object
+      properties:
+        transfers:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminTransfer"
+        total:
+          type: integer
+      required:
+        - transfers
+        - total
+
+    UpdateTransferStatusRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [Completed, Cancelled]
+      required:
+        - status

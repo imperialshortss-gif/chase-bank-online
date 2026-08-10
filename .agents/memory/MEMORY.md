@@ -1,0 +1,1 @@
+- [Chase Bank app stack](chase-bank-stack.md) — React+Vite frontend, Express API, PostgreSQL+Drizzle, JWT+bcrypt auth; bcrypt hashes must be generated from api-server node_modules

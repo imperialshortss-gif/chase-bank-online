@@ -1,0 +1,397 @@
+Project Title
+Chase Bank – Online Banking
+________________________________________
+Project Overview
+Build a premium full-stack banking-style web application named Chase Bank.
+________________________________________
+Technology Stack
+Use modern technologies:
+•	Next.js (latest stable version) 
+•	React 
+•	TypeScript 
+•	Tailwind CSS 
+•	Prisma ORM 
+•	SQLite 
+•	JWT Authentication 
+•	bcrypt password hashing 
+•	Responsive Design 
+•	Dark/ Light Theme 
+•	Modern component architecture 
+________________________________________
+Branding
+Use the uploaded Chase Bank logo as the official branding.
+Use it on:
+•	Login page 
+•	Dashboard 
+•	Admin Panel 
+•	Navigation Bar 
+•	Sidebar 
+•	Footer 
+•	Browser favicon 
+•	Loading screen 
+Store the logo in:
+/public/assets/logo.png
+Create a reusable component:
+<BankLogo size="small | medium | large" />
+Requirements:
+•	Preserve transparency. 
+•	Never stretch the logo. 
+•	Maintain aspect ratio. 
+•	Responsive sizing. 
+•	Clicking the logo returns to Dashboard. 
+________________________________________
+Color Theme
+Premium banking appearance.
+Primary:
+•	Light Navy
+•	Royal Red 
+•	Gold accents 
+Style:
+•	Glassmorphism 
+•	Soft shadows 
+•	Rounded cards 
+•	Smooth animations 
+•	Premium typography 
+The interface should resemble a modern digital banking dashboard.
+________________________________________
+Login System
+Homepage should display a professional login page.
+Fields:
+•	Username 
+•	Password 
+•	Remember Me 
+Buttons:
+•	Login 
+Features:
+•	Password hashing 
+•	JWT sessions 
+•	Secure authentication 
+•	Logout 
+Successful login redirects to the user's dashboard.
+________________________________________
+User Dashboard
+Display only the logged-in user's information.
+Sections:
+Account Summary
+Display:
+•	Full Name 
+•	Account Number 
+•	Account Type 
+•	Account Status 
+•	Available Balance (USD) 
+•	Current Balance (USD) 
+________________________________________
+Balance Card
+Large balance card displaying:
+Available Balance
+Example:
+$2,540,112,010.00
+Include subtle animations.
+________________________________________
+Summary Cards
+Display:
+•	Current Balance 
+•	Monthly Deposits 
+•	Monthly Withdrawals 
+•	Total Transactions 
+________________________________________
+Recent Transactions
+Table containing:
+•	Date 
+•	Description 
+•	Debit 
+•	Credit 
+•	Running Balance 
+•	Status 
+________________________________________
+Navigation
+Sidebar:
+•	Dashboard 
+•	Transactions 
+•	Transfer Funds 
+•	Profile 
+•	Settings 
+•	Logout 
+________________________________________
+Transfer Funds Feature
+Add a primary button on the Dashboard:
+Transfer Funds
+This opens:
+/transfer
+________________________________________
+Transfer Funds Page
+Design it like a premium banking application.
+________________________________________
+Beneficiary Information
+Fields:
+•	Beneficiary Full Name 
+•	Bank Name 
+•	Account Number 
+•	Routing Number / SWIFT / IBAN 
+•	Country 
+Use floating labels.
+Validate all required fields.
+________________________________________
+Transfer Details
+Fields:
+Amount
+Requirements:
+•	USD ONLY 
+•	Dollar symbol ($) 
+•	Two decimal places 
+•	Positive values only 
+•	Cannot exceed available balance 
+Display:
+Currency:
+United States Dollar (USD)
+This is informational only.
+No currency selector.
+No transfer type selector.
+________________________________________
+Optional Field
+Reference / Payment Note
+________________________________________
+Review Transfer
+After Continue:
+Display:
+Sender
+•	Name 
+•	Account Number 
+________________________________________
+Beneficiary
+•	Name 
+•	Bank 
+•	Account Number 
+•	Routing Number 
+________________________________________
+Transfer Summary
+Display:
+Transfer Amount
+Processing Fee
+$0.00
+Total Amount
+Estimated Processing Time
+48 Hours
+Checkbox:
+☐ I confirm the above information is correct.
+Button:
+Confirm Transfer
+________________________________________
+Transfer Processing
+When Confirm is clicked:
+Display a full-screen processing animation.
+Show these messages sequentially:
+•	Establishing secure connection... 
+•	Validating beneficiary information... 
+•	Encrypting transfer request... 
+•	Submitting transfer... 
+•	Awaiting confirmation... 
+•	Finalizing transaction... 
+Animation duration:
+Approximately 60 seconds.
+Disable all buttons while processing.
+________________________________________
+Success Screen
+Display:
+✅ Transfer Submitted Successfully
+Generate:
+Unique Transaction Reference
+Display:
+•	Beneficiary Name 
+•	Bank Name 
+•	Amount (USD) 
+•	Submission Date 
+•	Submission Time 
+•	Status 
+Processing
+Message:
+Your transfer request has been successfully submitted and is currently being processed. The funds are expected to be credited to the beneficiary account within 48 hours, subject to receiving bank processing times. You can monitor this transfer from your transaction history.
+Buttons:
+•	Return to Dashboard 
+•	View Transaction History 
+•	Download Transfer Receipt (PDF) 
+________________________________________
+Backend Logic
+When transfer is confirmed:
+Deduct transfer amount from user's Available Balance.
+Create transaction:
+•	Transaction Reference 
+•	Beneficiary Name 
+•	Bank Name 
+•	Amount 
+•	Currency (USD) 
+•	Timestamp 
+•	Status 
+Processing
+Estimated Completion
+48 Hours
+Automatically insert into transaction history.
+________________________________________
+Transaction History
+Display all transfers.
+Status badges:
+🟡 Processing
+After an administrator updates the record:
+🟢 Completed
+Show:
+•	Date 
+•	Beneficiary 
+•	Amount 
+•	Status 
+•	Reference Number 
+________________________________________
+Admin Panel
+Separate route:
+/admin
+Default administrator:
+Username
+admin
+Password
+admin123
+________________________________________
+Dashboard Statistics
+Display:
+•	Total Users 
+•	Active Users 
+•	Suspended Users 
+•	Total Deposits 
+•	Total Withdrawals 
+•	Pending Transfers 
+•	Completed Transfers 
+________________________________________
+User Management
+Administrator can:
+•	Create User 
+•	Edit User 
+•	Delete User 
+•	Suspend User 
+•	Activate User 
+Fields:
+•	Full Name 
+•	Username 
+•	Password 
+•	Email 
+•	Phone 
+•	Account Number 
+•	Account Type 
+•	Account Status 
+•	Available Balance 
+________________________________________
+Balance Management
+Administrator can:
+•	Set Balance 
+•	Increase Balance 
+•	Decrease Balance 
+All balances are displayed in USD.
+________________________________________
+Transaction Management
+Administrator can:
+•	Add Deposit 
+•	Add Withdrawal 
+•	Add Debit 
+•	Add Credit 
+System updates balances automatically.
+________________________________________
+Transfer Management
+Administrator can:
+View every submitted transfer.
+Search by:
+•	Account Number 
+•	Transaction Reference 
+•	Beneficiary Name 
+Filter:
+•	Processing 
+•	Completed 
+Actions:
+•	View Details 
+•	Mark Completed 
+•	Cancel (Simulation Only) 
+When a transfer is marked Completed:
+•	Status changes immediately. 
+•	User transaction history updates automatically. 
+________________________________________
+Profile Page
+Display:
+•	Full Name 
+•	Username 
+•	Email 
+•	Phone 
+•	Address 
+Allow optional editing.
+________________________________________
+Database Structure
+Users
+•	id 
+•	fullName 
+•	username 
+•	password 
+•	email 
+•	phone 
+•	address 
+•	accountNumber 
+•	accountType 
+•	accountStatus 
+•	availableBalance 
+•	createdAt 
+Transactions
+•	id 
+•	userId 
+•	transactionReference 
+•	beneficiaryName 
+•	bankName 
+•	accountNumber 
+•	routingNumber 
+•	amount 
+•	currency 
+•	debit 
+•	credit 
+•	balanceAfter 
+•	status 
+•	createdAt 
+Admins
+•	id 
+•	username 
+•	password 
+•	role 
+________________________________________
+Security
+Implement:
+•	bcrypt password hashing 
+•	JWT Authentication 
+•	Protected routes 
+•	Session expiration 
+•	Input validation 
+•	SQL injection protection 
+•	Prevent duplicate transfer submissions 
+•	Prevent negative balances 
+•	Prevent transfers exceeding available balance 
+________________________________________
+Seed Data
+Automatically create:
+Administrator
+Username:
+admin
+Password:
+admin123
+Demo User
+Username:
+demo
+Password:
+demo123
+Balance:
+$2,540,112,010.00 USD
+Generate 10 realistic sample transactions.
+________________________________________
+Final Requirements
+•	Clean, scalable project architecture 
+•	Fully responsive 
+•	Professional banking-inspired UI 
+•	Reusable React components 
+•	Smooth page transitions 
+•	Loading animations 
+•	PDF receipt generation 
+•	SQLite database with Prisma migrations 
+•	Seed script 
+•	README with setup instructions 
+•	Ready to run locally or deploy 
+
