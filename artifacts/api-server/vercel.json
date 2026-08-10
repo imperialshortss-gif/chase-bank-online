@@ -1,17 +1,5 @@
 {
   "version": 2,
-  "installCommand": "corepack enable && pnpm install --no-frozen-lockfile",
   "buildCommand": "pnpm run build",
-  "builds": [
-    {
-      "src": "dist/index.mjs",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "dist/index.mjs"
-    }
-  ]
+  "installCommand": "pnpm install --no-frozen-lockfile"
 }
