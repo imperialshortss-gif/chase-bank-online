@@ -15,7 +15,7 @@ const DEFAULT_JSON_ACCEPT = "application/json, application/problem+json";
 // Module-level configuration
 // ---------------------------------------------------------------------------
 
-let _baseUrl: string | null = typeof window !== "undefined" ? "https://" + "chase-bank-online-api-server" + ".vercel.app" : null;
+let _baseUrl: string | null = null;
 let _authTokenGetter: AuthTokenGetter | null = null;
 
 /**
