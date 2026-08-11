@@ -1,10 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "pnpm --filter @workspace/api-server build",
-  "installCommand": "pnpm install --no-frozen-lockfile",
-  "functions": {
-    "index.mjs": {
-      "runtime": "nodejs"
-    }
-  }
+  "installCommand": "pnpm install --no-frozen-lockfile"
 }
