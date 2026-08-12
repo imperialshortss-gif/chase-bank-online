@@ -1,0 +1,6 @@
+{
+  "name": "chase-bank-online-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-12",
+  "compatibility_flags": ["nodejs_compat"]
+}
