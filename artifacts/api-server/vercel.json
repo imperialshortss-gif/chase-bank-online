@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "buildCommand": "pnpm run build",
+  "installCommand": "pnpm install --no-frozen-lockfile",
+  "functions": {
+    "dist/index.mjs": {
+      "runtime": "nodejs22.x"
+    }
+  }
+}
