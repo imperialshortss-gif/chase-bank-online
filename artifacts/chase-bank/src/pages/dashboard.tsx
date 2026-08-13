@@ -94,7 +94,7 @@ export default function Dashboard() {
       {/* Page header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Welcome back, {user.fullName}</h1>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight"><span className="sm:inline block">Welcome back,</span> <span className="whitespace-nowrap">{user.fullName}</span></h1>
           <p className="text-muted-foreground mt-1">Here's your account overview</p>
         </div>
         <Link href="/transfer">
