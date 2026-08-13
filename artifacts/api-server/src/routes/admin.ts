@@ -47,7 +47,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.post("/user", async (req, res) => {
+router.post("/users", async (req, res) => {
   try {
     const {
       fullName,
@@ -62,17 +62,37 @@ router.post("/user", async (req, res) => {
       availableBalance,
     } = req.body;
 
-    if (!fullName || !username || !password || !accountNumber) {
+    if (
+      !fullName ||
+      !username ||
+      !password ||
+      !accountType ||
+      !accountStatus ||
+      availableBalance === undefined
+    ) {
       return res.status(400).json({
-        message:
-          "Full name, username, password, and account number are required",
+        message: "Required user fields are missing",
       });
     }
 
+    const generatedAccountNumber =
+      accountNumber ||
+      `ACCT${Date.now()}${Math.floor(Math.random() * 1000)}`;
+
     const result = await pool.query(
       `INSERT INTO users
-        (full_name, username, password, email, phone, address,
-         account_number, account_type, account_status, available_balance)
+        (
+          full_name,
+          username,
+          password,
+          email,
+          phone,
+          address,
+          account_number,
+          account_type,
+          account_status,
+          available_balance
+        )
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
        RETURNING
          id,
@@ -93,16 +113,16 @@ router.post("/user", async (req, res) => {
         email || null,
         phone || null,
         address || null,
-        accountNumber,
-        accountType || "Checking",
-        accountStatus || "Active",
-        availableBalance || 0,
+        generatedAccountNumber,
+        accountType,
+        accountStatus,
+        availableBalance,
       ],
     );
 
     return res.status(201).json(result.rows[0]);
   } catch (error: any) {
-    console.error("Create user failed:", error);
+    console.error("Create admin user failed:", error);
 
     if (error.code === "23505") {
       return res.status(409).json({
