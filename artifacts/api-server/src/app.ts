@@ -1,25 +1,20 @@
 import express from "express";
 import cors from "cors";
-import dbHealth from "./routes/health.js";
+import healthRouter from "./routes/health.js";
 
 const app = express();
 
-app.use(
-  cors({
-    origin: true,
-    credentials: true
-  })
-);
-
+app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.use("/api/health", dbHealth);
-
-app.get("/api/health", (_req, res) => {
+app.get("/", (_req: any, res: any) => {
   res.json({
     status: "ok",
-    message: "Chase Bank API is running"
+    message: "Chase Bank API is running",
   });
 });
+
+app.use("/api/health", healthRouter);
 
 export default app;

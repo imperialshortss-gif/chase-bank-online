@@ -1,16 +1,16 @@
-import { Router, type Request, type Response } from "express";
+import { Router } from "express";
 import { pool } from "../db.js";
 
 const router = Router();
 
-router.get("/", (_req: Request, res: Response) => {
+router.get("/", (_req: any, res: any) => {
   res.json({
     status: "ok",
     message: "Chase Bank API is running",
   });
 });
 
-router.get("/db", async (_req: Request, res: Response) => {
+router.get("/db", async (_req: any, res: any) => {
   try {
     const result = await pool.query("SELECT NOW() AS time");
 
