@@ -20,7 +20,7 @@ const cardVariants = {
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.08, duration: 0.4, ease: "easeOut" },
+    transition: { delay: i * 0.08, duration: 0.4, ease: "easeOut" as const },
   }),
 };
 
@@ -116,10 +116,10 @@ export default function Dashboard() {
               <div>
                 <p className="text-sm font-medium text-white/60 uppercase tracking-widest mb-1">Available Balance</p>
                 <motion.p
-                  className="text-5xl md:text-6xl font-bold tracking-tight"
+                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight break-words"
                   initial={{ opacity: 0, scale: 0.96 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  transition={{ duration: 0.5, ease: "easeOut" as const }}
                   data-testid="text-available-balance"
                 >
                   {formatCurrency(user.availableBalance)}
