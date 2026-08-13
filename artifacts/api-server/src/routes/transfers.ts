@@ -30,6 +30,8 @@ function getUserId(req: Request): number | null {
 }
 
 router.post("/", async (req, res) => {
+  const client = await pool.connect();
+
   try {
     const userId = getUserId(req);
 
@@ -70,33 +72,47 @@ router.post("/", async (req, res) => {
       });
     }
 
-    const userResult = await pool.query(
-      `SELECT id, full_name, account_number, available_balance
+    await client.query("BEGIN");
+
+    const userResult = await client.query(
+      `SELECT
+        id,
+        full_name,
+        account_number,
+        available_balance
        FROM users
        WHERE id = $1
-       LIMIT 1`,
+       FOR UPDATE`,
       [userId],
     );
 
     const user = userResult.rows[0];
 
     if (!user) {
+      await client.query("ROLLBACK");
+
       return res.status(404).json({
         message: "User not found",
       });
     }
 
-    if (Number(user.available_balance) < transferAmount) {
+    const currentBalance = Number(user.available_balance);
+
+    if (currentBalance < transferAmount) {
+      await client.query("ROLLBACK");
+
       return res.status(400).json({
         message: "Insufficient available balance",
       });
     }
 
+    const newBalance = currentBalance - transferAmount;
+
     const transactionReference = `TRX-${Date.now()}-${Math.floor(
       Math.random() * 100000,
     )}`;
 
-    const result = await pool.query(
+    const transferResult = await client.query(
       `INSERT INTO transfers (
         user_id,
         transaction_reference,
@@ -136,7 +152,60 @@ router.post("/", async (req, res) => {
       ],
     );
 
-    const transfer = result.rows[0];
+    const transfer = transferResult.rows[0];
+
+    await client.query(
+      `UPDATE users
+       SET available_balance = $1
+       WHERE id = $2`,
+      [newBalance, userId],
+    );
+
+    await client.query(
+      `INSERT INTO transactions (
+        user_id,
+        transaction_reference,
+        beneficiary_name,
+        bank_name,
+        account_number,
+        routing_number,
+        amount,
+        currency,
+        debit,
+        credit,
+        balance_after,
+        description,
+        status
+      )
+      VALUES (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        'USD',
+        $7,
+        0,
+        $8,
+        $9,
+        'Processing'
+      )`,
+      [
+        userId,
+        transactionReference,
+        beneficiaryName,
+        bankName,
+        accountNumber,
+        routingNumber,
+        transferAmount,
+        newBalance,
+        reference || `Transfer to ${beneficiaryName}`,
+      ],
+    );
+
+    await client.query("COMMIT");
 
     return res.status(201).json({
       id: transfer.id,
@@ -152,11 +221,15 @@ router.post("/", async (req, res) => {
       estimatedCompletion: transfer.estimated_completion,
     });
   } catch (error) {
+    await client.query("ROLLBACK");
+
     console.error("Transfer submission failed:", error);
 
     return res.status(500).json({
       message: "Internal server error",
     });
+  } finally {
+    client.release();
   }
 });
 
