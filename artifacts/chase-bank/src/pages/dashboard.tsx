@@ -155,7 +155,7 @@ export default function Dashboard() {
                   <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">
                     {card.label}
                   </p>
-                  <p className="text-xl font-bold text-foreground" data-testid={`text-${card.label.toLowerCase().replace(/ /g, "-")}`}>
+                  <p className="text-base sm:text-lg md:text-xl font-bold text-foreground break-words" data-testid={`text-${card.label.toLowerCase().replace(/ /g, "-")}`}>
                     {card.value}
                   </p>
                 </CardContent>
