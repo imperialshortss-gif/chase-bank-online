@@ -83,14 +83,6 @@ router.post("/", async (req, res) => {
       });
     }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (selectedTransferDate < today) {
-      return res.status(400).json({
-        message: "Transfer date cannot be in the past",
-      });
-    }
 
     await client.query("BEGIN");
 
