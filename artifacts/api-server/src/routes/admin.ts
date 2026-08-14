@@ -7,6 +7,9 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
+/**
+ * Admin login
+ */
 router.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -47,6 +50,99 @@ router.post("/login", async (req, res) => {
   }
 });
 
+/**
+ * Get admin users
+ *
+ * GET /api/admin/users
+ * GET /api/admin/users?search=john
+ * GET /api/admin/users?page=1&limit=20
+ * GET /api/admin/users?search=john&page=1&limit=20
+ */
+router.get("/users", async (req, res) => {
+  try {
+    const search =
+      typeof req.query.search === "string" ? req.query.search.trim() : "";
+
+    const pageParam =
+      typeof req.query.page === "string" ? parseInt(req.query.page, 10) : 1;
+
+    const limitParam =
+      typeof req.query.limit === "string"
+        ? parseInt(req.query.limit, 10)
+        : 20;
+
+    const page =
+      Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
+
+    const limit =
+      Number.isFinite(limitParam) && limitParam > 0 && limitParam <= 100
+        ? limitParam
+        : 20;
+
+    const offset = (page - 1) * limit;
+
+    const searchPattern = `%${search}%`;
+
+    const countResult = await pool.query(
+      `SELECT COUNT(*)::int AS total
+       FROM users
+       WHERE
+         $1 = ''
+         OR full_name ILIKE $2
+         OR username ILIKE $2
+         OR email ILIKE $2
+         OR phone ILIKE $2
+         OR account_number ILIKE $2`,
+      [search, searchPattern],
+    );
+
+    const total = countResult.rows[0]?.total ?? 0;
+
+    const result = await pool.query(
+      `SELECT
+         id,
+         full_name AS "fullName",
+         username,
+         email,
+         phone,
+         address,
+         account_number AS "accountNumber",
+         account_type AS "accountType",
+         account_status AS "accountStatus",
+         available_balance AS "availableBalance",
+         created_at AS "createdAt"
+       FROM users
+       WHERE
+         $1 = ''
+         OR full_name ILIKE $2
+         OR username ILIKE $2
+         OR email ILIKE $2
+         OR phone ILIKE $2
+         OR account_number ILIKE $2
+       ORDER BY created_at DESC
+       LIMIT $3
+       OFFSET $4`,
+      [search, searchPattern, limit, offset],
+    );
+
+    return res.json({
+      users: result.rows,
+      total,
+      page,
+      limit,
+    });
+  } catch (error) {
+    console.error("Get admin users failed:", error);
+
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+});
+
+/**
+ * Create user
+ */
 router.post("/users", async (req, res) => {
   try {
     const {
