@@ -16,6 +16,7 @@ export const transfersTable = pgTable("transfers", {
   reference: text("reference"),
   status: text("status").notNull().default("Processing"),
   estimatedCompletion: text("estimated_completion").notNull().default("48 Hours"),
+  transferDate: timestamp("transfer_date").notNull().defaultNow(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

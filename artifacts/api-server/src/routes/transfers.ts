@@ -49,6 +49,7 @@ router.post("/", async (req, res) => {
       country,
       amount,
       reference,
+      transferDate,
     } = req.body;
 
     if (
@@ -69,6 +70,25 @@ router.post("/", async (req, res) => {
     if (!Number.isFinite(transferAmount) || transferAmount <= 0) {
       return res.status(400).json({
         message: "Invalid transfer amount",
+      });
+    }
+
+    const selectedTransferDate = transferDate
+      ? new Date(`${transferDate}T00:00:00`)
+      : new Date();
+
+    if (Number.isNaN(selectedTransferDate.getTime())) {
+      return res.status(400).json({
+        message: "Invalid transfer date",
+      });
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (selectedTransferDate < today) {
+      return res.status(400).json({
+        message: "Transfer date cannot be in the past",
       });
     }
 
@@ -124,9 +144,10 @@ router.post("/", async (req, res) => {
         amount,
         currency,
         status,
-        reference
+        reference,
+        transfer_date
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'USD', 'Processing', $9)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'USD', 'Processing', $9, $10)
       RETURNING
         id,
         transaction_reference,
@@ -149,6 +170,7 @@ router.post("/", async (req, res) => {
         country,
         transferAmount,
         reference ?? null,
+        selectedTransferDate,
       ],
     );
 

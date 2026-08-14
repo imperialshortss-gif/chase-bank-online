@@ -8,10 +8,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { ShieldCheck, ArrowRight, CheckCircle, FileText, Download, Building2, User, Landmark, Hash, Globe, DollarSign } from "lucide-react";
+import { ShieldCheck, ArrowRight, CheckCircle, FileText, Download, Building2, User, Landmark, Hash, Globe, DollarSign, CalendarIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { jsPDF } from "jspdf";
 import { Link } from "wouter";
@@ -25,6 +27,7 @@ const transferSchema = z.object({
   country: z.string().min(2, "Country is required"),
   amount: z.coerce.number().positive("Amount must be greater than 0"),
   reference: z.string().optional(),
+  transferDate: z.string().min(1, "Transfer date is required"),
 });
 
 type Step = "form" | "review" | "processing" | "success";
@@ -50,6 +53,7 @@ export default function Transfer() {
       country: "US",
       amount: undefined,
       reference: "",
+      transferDate: new Date().toISOString().split("T")[0],
     },
   });
 
@@ -358,6 +362,62 @@ export default function Transfer() {
                             <FormMessage />
                           </FormItem>
                         )}
+                      />
+
+                      
+                      <FormField
+                        control={form.control}
+                        name="transferDate"
+                        render={({ field }) => {
+                          const selectedDate = field.value
+                            ? new Date(`${field.value}T00:00:00`)
+                            : new Date();
+
+                          return (
+                            <FormItem>
+                              <FormLabel>Transfer Date</FormLabel>
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <FormControl>
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      className="w-full justify-start text-left font-normal bg-background"
+                                    >
+                                      <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
+                                      {selectedDate.toLocaleDateString("en-US", {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                      })}
+                                    </Button>
+                                  </FormControl>
+                                </PopoverTrigger>
+
+                                <PopoverContent className="w-auto p-0" align="start">
+                                  <Calendar
+                                    mode="single"
+                                    selected={selectedDate}
+                                    onSelect={(date) => {
+                                      if (date) {
+                                        field.onChange(
+                                          date.toISOString().split("T")[0]
+                                        );
+                                      }
+                                    }}
+                                    disabled={(date) => {
+                                      const today = new Date();
+                                      today.setHours(0, 0, 0, 0);
+                                      return date < today;
+                                    }}
+                                    initialFocus
+                                  />
+                                </PopoverContent>
+                              </Popover>
+                              <FormMessage />
+                            </FormItem>
+                          );
+                        }}
                       />
                     </div>
                     
