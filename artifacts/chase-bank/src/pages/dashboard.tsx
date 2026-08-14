@@ -203,7 +203,7 @@ export default function Dashboard() {
                         data-testid={`row-transaction-${txn.id}`}
                       >
                         <td className="px-6 py-4 whitespace-nowrap text-muted-foreground">
-                          {formatDateShort(txn.createdAt)}
+                          {formatDateShort(txn.transactionDate)}
                         </td>
                         <td className="px-6 py-4 max-w-[200px]">
                           <span className="truncate block font-medium text-foreground">

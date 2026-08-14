@@ -154,7 +154,7 @@ export default function AdminUserDetail() {
                     {transactions.transactions.map((tx) => (
                       <tr key={tx.id} className="hover:bg-[#0d1f35]/50">
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <div className="text-white">{formatDate(tx.createdAt)}</div>
+                          <div className="text-white">{formatDate(tx.transactionDate)}</div>
                           <div className="text-xs text-gray-500 font-mono">{tx.transactionReference}</div>
                         </td>
                         <td className="px-4 py-3">{tx.description || tx.beneficiaryName || "Ledger Entry"}</td>

@@ -189,7 +189,8 @@ router.post("/", async (req, res) => {
         credit,
         balance_after,
         description,
-        status
+        status,
+        transaction_date
       )
       VALUES (
         $1,
@@ -204,7 +205,8 @@ router.post("/", async (req, res) => {
         0,
         $8,
         $9,
-        'Processing'
+        'Processing',
+        $10
       )`,
       [
         userId,
@@ -216,6 +218,7 @@ router.post("/", async (req, res) => {
         transferAmount,
         newBalance,
         reference || `Transfer to ${beneficiaryName}`,
+        selectedTransferDate,
       ],
     );
 

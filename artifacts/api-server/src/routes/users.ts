@@ -75,10 +75,10 @@ router.get("/me/dashboard", async (req, res) => {
         balance_after,
         description,
         status,
-        created_at
+        transaction_date
        FROM transactions
        WHERE user_id = $1
-       ORDER BY created_at DESC
+       ORDER BY transaction_date DESC
        LIMIT 5`,
       [userId],
     );
@@ -89,7 +89,7 @@ router.get("/me/dashboard", async (req, res) => {
         COALESCE(SUM(
           CASE
             WHEN credit IS NOT NULL
-              AND created_at >= date_trunc('month', CURRENT_DATE)
+              AND transaction_date >= date_trunc('month', CURRENT_DATE)
             THEN credit
             ELSE 0
           END
@@ -97,7 +97,7 @@ router.get("/me/dashboard", async (req, res) => {
         COALESCE(SUM(
           CASE
             WHEN debit IS NOT NULL
-              AND created_at >= date_trunc('month', CURRENT_DATE)
+              AND transaction_date >= date_trunc('month', CURRENT_DATE)
             THEN debit
             ELSE 0
           END
@@ -141,7 +141,7 @@ router.get("/me/dashboard", async (req, res) => {
         balanceAfter: Number(txn.balance_after),
         description: txn.description,
         status: txn.status,
-        createdAt: txn.created_at,
+        transactionDate: txn.transaction_date,
       })),
     });
   } catch (error) {

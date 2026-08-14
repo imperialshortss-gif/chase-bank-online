@@ -65,7 +65,7 @@ export interface Transaction {
   balanceAfter?: number;
   description?: string;
   status: string;
-  createdAt: string;
+  transactionDate: string;
 }
 
 export interface DashboardSummary {

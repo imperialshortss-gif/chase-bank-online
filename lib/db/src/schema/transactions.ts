@@ -17,6 +17,7 @@ export const transactionsTable = pgTable("transactions", {
   balanceAfter: numeric("balance_after", { precision: 20, scale: 2 }).notNull(),
   description: text("description"),
   status: text("status").notNull().default("Completed"),
+  transactionDate: timestamp("transaction_date").notNull().defaultNow(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

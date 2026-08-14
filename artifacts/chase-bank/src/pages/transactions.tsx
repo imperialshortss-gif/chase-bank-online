@@ -119,7 +119,7 @@ export default function Transactions() {
                         data-testid={`row-transaction-${txn.id}`}
                       >
                         <td className="px-6 py-4 whitespace-nowrap text-muted-foreground text-xs">
-                          {formatDate(txn.createdAt)}
+                          {formatDate(txn.transactionDate)}
                         </td>
                         <td className="px-6 py-4 max-w-[180px]">
                           <span className="truncate block font-medium text-foreground">
