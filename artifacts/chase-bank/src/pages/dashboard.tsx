@@ -107,7 +107,7 @@ export default function Dashboard() {
 
       {/* Balance Card */}
       <motion.div custom={0} variants={cardVariants} initial="hidden" animate="visible">
-        <Card className="relative overflow-hidden border-none shadow-lg bg-gradient-to-br from-[#0a2540] via-[#0d3260] to-[#117aca] text-white">
+        <Card className="relative overflow-hidden border-none shadow-lg !bg-gradient-to-br !from-[#0a2540] !via-[#0d3260] !to-[#117aca] !text-white">
           <div className="absolute inset-0 opacity-5 pointer-events-none">
             <ShieldCheck className="w-full h-full" />
           </div>
