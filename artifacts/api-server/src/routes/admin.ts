@@ -237,7 +237,7 @@ export default router;
 /**
  * Update user balance
  */
-router.patch("/users/:id/balance", async (req, res) => {
+router.put("/users/:id/balance", async (req, res) => {
   try {
     const userId = Number(req.params.id);
     const { action, amount } = req.body;
