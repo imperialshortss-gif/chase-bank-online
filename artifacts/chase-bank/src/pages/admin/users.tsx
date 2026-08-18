@@ -4,6 +4,7 @@ import {
   useCreateAdminUser,
   useUpdateUserStatus,
   useUpdateUserBalance,
+  useAddAdminTransaction,
   getGetAdminUsersQueryKey,
 } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -46,11 +47,20 @@ const defaultCreate: CreateForm = {
 export default function AdminUsers() {
   const [search, setSearch] = useState("");
   const [balanceDialog, setBalanceDialog] = useState<{
-    open: boolean;
-    userId: number | null;
-    action: "set" | "increase" | "decrease";
-    amount: string;
-  }>({ open: false, userId: null, action: "set", amount: "" });
+  open: boolean;
+  userId: number | null;
+  type: "debit" | "credit";
+  amount: string;
+  description: string;
+  transactionDate: string;
+}>({
+  open: false,
+  userId: null,
+  type: "debit",
+  amount: "",
+  description: "",
+  transactionDate: new Date().toISOString().split("T")[0],
+});
   const [createOpen, setCreateOpen] = useState(false);
   const [createForm, setCreateForm] = useState<CreateForm>(defaultCreate);
 
@@ -64,7 +74,8 @@ export default function AdminUsers() {
 
   const updateStatusMutation = useUpdateUserStatus();
   const updateBalanceMutation = useUpdateUserBalance();
-  const createMutation = useCreateAdminUser();
+const addTransactionMutation = useAddAdminTransaction();
+const createMutation = useCreateAdminUser();
 
   const handleStatusChange = (userId: number, status: "Active" | "Suspended") => {
     updateStatusMutation.mutate({ id: userId, data: { status } }, {
@@ -76,16 +87,68 @@ export default function AdminUsers() {
   };
 
   const handleBalanceSubmit = () => {
-    if (!balanceDialog.userId || !balanceDialog.amount) return;
-    updateBalanceMutation.mutate(
-      { id: balanceDialog.userId, data: { action: balanceDialog.action, amount: parseFloat(balanceDialog.amount) } },
+    if (
+      !balanceDialog.userId ||
+      !balanceDialog.amount ||
+      !balanceDialog.description.trim()
+    ) {
+      toast({
+        title: "Missing fields",
+        description: "Amount and description are required.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const amount = parseFloat(balanceDialog.amount);
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      toast({
+        title: "Invalid amount",
+        description: "Please enter a valid amount greater than zero.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    addTransactionMutation.mutate(
+      {
+        id: balanceDialog.userId,
+        data: {
+          type: balanceDialog.type,
+          amount,
+          description: balanceDialog.description.trim(),
+          transactionDate: balanceDialog.transactionDate,
+        },
+      },
       {
         onSuccess: () => {
-          toast({ title: "Balance updated successfully" });
-          setBalanceDialog({ ...balanceDialog, open: false, amount: "" });
-          queryClient.invalidateQueries({ queryKey: getGetAdminUsersQueryKey() });
+          toast({
+            title: `${balanceDialog.type === "credit" ? "Credit" : "Debit"} posted`,
+            description: "The balance and transaction history have been updated.",
+          });
+
+          setBalanceDialog({
+            open: false,
+            userId: null,
+            type: "debit",
+            amount: "",
+            description: "",
+            transactionDate: new Date().toISOString().split("T")[0],
+          });
+
+          queryClient.invalidateQueries({
+            queryKey: getGetAdminUsersQueryKey(),
+          });
         },
-      }
+        onError: (err: any) => {
+          toast({
+            title: "Transaction failed",
+            description: err?.message || "Unable to update the account.",
+            variant: "destructive",
+          });
+        },
+      },
     );
   };
 
@@ -234,7 +297,14 @@ export default function AdminUsers() {
                             <DropdownMenuItem
                               className="cursor-pointer dark:hover:bg-[#1a3857]"
                               onClick={() =>
-                                setBalanceDialog({ open: true, userId: user.id, action: "set", amount: user.availableBalance.toString() })
+                                setBalanceDialog({
+                                  open: true,
+                                  userId: user.id,
+                                  type: "debit",
+                                  amount: "",
+                                  description: "",
+                                  transactionDate: new Date().toISOString().split("T")[0],
+                                })
                               }
                             >
                               <DollarSign className="mr-2 h-4 w-4" /> Manage Balance
@@ -281,18 +351,19 @@ export default function AdminUsers() {
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <label className="text-sm font-medium text-gray-300">Action</label>
+              <label className="text-sm font-medium text-gray-300">Transaction Type</label>
               <Select
-                value={balanceDialog.action}
-                onValueChange={(val: any) => setBalanceDialog((prev) => ({ ...prev, action: val }))}
+                value={balanceDialog.type}
+                onValueChange={(val: "debit" | "credit") =>
+                  setBalanceDialog((prev) => ({ ...prev, type: val }))
+                }
               >
                 <SelectTrigger className="bg-[#020b18] border-[#1a3857] text-white">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-[#020b18] border-[#1a3857] text-white">
-                  <SelectItem value="set">Set Exact Balance</SelectItem>
-                  <SelectItem value="increase">Add Funds (+)</SelectItem>
-                  <SelectItem value="decrease">Deduct Funds (-)</SelectItem>
+                  <SelectItem value="debit">Debit (-)</SelectItem>
+                  <SelectItem value="credit">Credit (+)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -303,11 +374,43 @@ export default function AdminUsers() {
                 <Input
                   type="number"
                   step="0.01"
+                  min="0"
                   className="pl-8 bg-[#020b18] border-[#1a3857] text-white text-lg font-semibold"
                   value={balanceDialog.amount}
                   onChange={(e) => setBalanceDialog((prev) => ({ ...prev, amount: e.target.value }))}
                 />
               </div>
+            </div>
+
+            <div className="grid gap-2">
+              <label className="text-sm font-medium text-gray-300">Transaction Date</label>
+              <Input
+                type="date"
+                className="bg-[#020b18] border-[#1a3857] text-white"
+                value={balanceDialog.transactionDate}
+                onChange={(e) =>
+                  setBalanceDialog((prev) => ({
+                    ...prev,
+                    transactionDate: e.target.value,
+                  }))
+                }
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <label className="text-sm font-medium text-gray-300">Description</label>
+              <Input
+                type="text"
+                placeholder="e.g. Account adjustment"
+                className="bg-[#020b18] border-[#1a3857] text-white"
+                value={balanceDialog.description}
+                onChange={(e) =>
+                  setBalanceDialog((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
+              />
             </div>
           </div>
           <DialogFooter>

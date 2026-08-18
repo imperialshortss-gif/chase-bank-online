@@ -313,3 +313,166 @@ router.put("/users/:id/balance", async (req, res) => {
     });
   }
 });
+
+/**
+ * Add a manual debit/credit transaction for a user
+ */
+router.post("/users/:id/transactions", async (req, res) => {
+  const client = await pool.connect();
+
+  try {
+    const userId = Number(req.params.id);
+    const { type, amount, description, transactionDate } = req.body;
+
+    if (!Number.isInteger(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    if (!["debit", "credit"].includes(type)) {
+      return res.status(400).json({
+        message: "Transaction type must be debit or credit",
+      });
+    }
+
+    const numericAmount = Number(amount);
+
+    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+      return res.status(400).json({
+        message: "Invalid transaction amount",
+      });
+    }
+
+    if (!description || !String(description).trim()) {
+      return res.status(400).json({
+        message: "Transaction description is required",
+      });
+    }
+
+    const selectedDate = transactionDate
+      ? new Date(`${transactionDate}T00:00:00`)
+      : new Date();
+
+    if (Number.isNaN(selectedDate.getTime())) {
+      return res.status(400).json({
+        message: "Invalid transaction date",
+      });
+    }
+
+    await client.query("BEGIN");
+
+    const userResult = await client.query(
+      `SELECT id, available_balance
+       FROM users
+       WHERE id = $1
+       FOR UPDATE`,
+      [userId],
+    );
+
+    const user = userResult.rows[0];
+
+    if (!user) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const currentBalance = Number(user.available_balance);
+
+    const newBalance =
+      type === "credit"
+        ? currentBalance + numericAmount
+        : currentBalance - numericAmount;
+
+    if (newBalance < 0) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        message: "Insufficient available balance for this debit",
+      });
+    }
+
+    const transactionReference = `ADMIN-${Date.now()}-${Math.floor(
+      Math.random() * 100000,
+    )}`;
+
+    const debitAmount = type === "debit" ? numericAmount : 0;
+    const creditAmount = type === "credit" ? numericAmount : 0;
+
+    const transactionResult = await client.query(
+      `INSERT INTO transactions (
+        user_id,
+        transaction_reference,
+        beneficiary_name,
+        bank_name,
+        account_number,
+        routing_number,
+        amount,
+        currency,
+        debit,
+        credit,
+        balance_after,
+        description,
+        status,
+        transaction_date
+      )
+      VALUES (
+        $1, $2, NULL, NULL, NULL, NULL, $3, 'USD',
+        $4, $5, $6, $7, 'Completed', $8
+      )
+      RETURNING
+        id,
+        transaction_reference,
+        amount,
+        currency,
+        debit,
+        credit,
+        balance_after,
+        description,
+        status,
+        transaction_date`,
+      [
+        userId,
+        transactionReference,
+        numericAmount,
+        debitAmount,
+        creditAmount,
+        newBalance,
+        String(description).trim(),
+        selectedDate,
+      ],
+    );
+
+    await client.query(
+      `UPDATE users
+       SET available_balance = $1
+       WHERE id = $2`,
+      [newBalance, userId],
+    );
+
+    await client.query("COMMIT");
+
+    const transaction = transactionResult.rows[0];
+
+    return res.status(201).json({
+      id: transaction.id,
+      transactionReference: transaction.transaction_reference,
+      amount: Number(transaction.amount),
+      currency: transaction.currency,
+      debit: Number(transaction.debit),
+      credit: Number(transaction.credit),
+      balanceAfter: Number(transaction.balance_after),
+      description: transaction.description,
+      status: transaction.status,
+      transactionDate: transaction.transaction_date,
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+
+    console.error("Add admin transaction failed:", error);
+
+    return res.status(500).json({
+      message: "Failed to add transaction",
+    });
+  } finally {
+    client.release();
+  }
+});
+
