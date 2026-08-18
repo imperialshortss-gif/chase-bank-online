@@ -219,7 +219,72 @@ router.post("/users", async (req, res) => {
     return res.status(201).json(result.rows[0]);
   } catch (error: any) {
     console.error("Create admin user failed:", error);
+/**
+ * Update user balance
+ */
+router.patch("/users/:id/balance", async (req, res) => {
+  try {
+    const userId = Number(req.params.id);
+    const { availableBalance } = req.body;
 
+    if (!Number.isInteger(userId)) {
+      return res.status(400).json({
+        message: "Invalid user ID",
+      });
+    }
+
+    if (
+      availableBalance === undefined ||
+      availableBalance === null ||
+      Number.isNaN(Number(availableBalance))
+    ) {
+      return res.status(400).json({
+        message: "Available balance is required",
+      });
+    }
+
+    const newBalance = Number(availableBalance);
+
+    if (newBalance < 0) {
+      return res.status(400).json({
+        message: "Available balance cannot be negative",
+      });
+    }
+
+    const result = await pool.query(
+      `UPDATE users
+       SET available_balance = $1
+       WHERE id = $2
+       RETURNING
+         id,
+         full_name AS "fullName",
+         username,
+         email,
+         phone,
+         address,
+         account_number AS "accountNumber",
+         account_type AS "accountType",
+         account_status AS "accountStatus",
+         available_balance AS "availableBalance",
+         created_at AS "createdAt"`,
+      [newBalance, userId],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    return res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Update user balance failed:", error);
+
+    return res.status(500).json({
+      message: "Failed to update user balance",
+    });
+  }
+})
     if (error.code === "23505") {
       return res.status(409).json({
         message: "Username or account number already exists",
