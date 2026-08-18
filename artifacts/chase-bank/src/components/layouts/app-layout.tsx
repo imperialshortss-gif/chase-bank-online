@@ -69,17 +69,33 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <header className="md:hidden h-16 bg-sidebar border-b border-sidebar-border flex items-center justify-between px-4">
           <Link
             href="/dashboard"
-            className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2"
+            className="absolute left-1/2 -translate-x-1/2 flex items-center gap-[5px]"
+            aria-label="CHASE"
           >
             <span
-              className="relative flex h-8 w-8 items-center justify-center"
+              className="text-[22px] leading-none font-bold tracking-[-0.8px] text-white"
+              style={{
+                fontFamily: "Arial, Helvetica, sans-serif",
+                fontStretch: "condensed",
+              }}
+            >
+              CHASE
+            </span>
+
+            <span
+              className="relative flex h-[21px] w-[21px] items-center justify-center"
               aria-hidden="true"
             >
-              <span className="absolute h-7 w-7 rotate-45 border-[5px] border-[#117aca]" />
-              <span className="absolute h-3 w-3 rotate-45 bg-white" />
-            </span>
-            <span className="text-2xl font-bold tracking-tight text-white">
-              CHASE
+              <span
+                className="absolute h-[18px] w-[18px] rotate-45 bg-[#117ACA]"
+                style={{
+                  clipPath:
+                    "polygon(25% 0%, 75% 0%, 100% 25%, 100% 75%, 75% 100%, 25% 100%, 0% 75%, 0% 25%)",
+                }}
+              />
+              <span
+                className="absolute h-[8px] w-[8px] rotate-45 bg-white"
+              />
             </span>
           </Link>
           <button onClick={logout} className="text-sidebar-foreground p-2">
