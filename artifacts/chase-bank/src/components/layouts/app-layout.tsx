@@ -69,14 +69,42 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <header className="md:hidden h-16 bg-sidebar border-b border-sidebar-border flex items-center justify-between px-4">
           <Link
             href="/dashboard"
-            className="absolute left-1/2 -translate-x-1/2 flex items-center"
+            className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2"
             aria-label="Chase"
           >
-            <img
-              src={chaseLogo}
-              alt="Chase"
-              className="h-8 w-auto object-contain brightness-0 invert"
-            />
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 28 28"
+              aria-hidden="true"
+            >
+              <path
+                d="M14 1.5L26.5 8.75V19.25L14 26.5L1.5 19.25V8.75L14 1.5Z"
+                fill="white"
+              />
+              <path
+                d="M14 6L21.75 10.5V17.5L14 22L6.25 17.5V10.5L14 6Z"
+                fill="#172B4D"
+              />
+              <path
+                d="M14 6V12.25L21.75 17.5V10.5L14 6Z"
+                fill="white"
+              />
+              <path
+                d="M6.25 10.5V17.5L14 12.25V6L6.25 10.5Z"
+                fill="white"
+              />
+            </svg>
+
+            <span
+              className="text-[22px] font-bold tracking-[-0.035em] text-white"
+              style={{
+                fontFamily: "Arial, Helvetica, sans-serif",
+                lineHeight: 1,
+              }}
+            >
+              CHASE
+            </span>
           </Link>
           <button onClick={logout} className="text-sidebar-foreground p-2">
             <LogOut className="w-5 h-5" />
