@@ -219,35 +219,69 @@ router.post("/users", async (req, res) => {
     return res.status(201).json(result.rows[0]);
   } catch (error: any) {
     console.error("Create admin user failed:", error);
+
+    if (error.code === "23505") {
+      return res.status(409).json({
+        message: "Username or account number already exists",
+      });
+    }
+
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+});
+
+export default router;
+
 /**
  * Update user balance
  */
 router.patch("/users/:id/balance", async (req, res) => {
   try {
     const userId = Number(req.params.id);
-    const { availableBalance } = req.body;
+    const { action, amount } = req.body;
 
     if (!Number.isInteger(userId)) {
-      return res.status(400).json({
-        message: "Invalid user ID",
-      });
+      return res.status(400).json({ message: "Invalid user ID" });
     }
 
-    if (
-      availableBalance === undefined ||
-      availableBalance === null ||
-      Number.isNaN(Number(availableBalance))
-    ) {
-      return res.status(400).json({
-        message: "Available balance is required",
-      });
+    if (!["set", "increase", "decrease"].includes(action)) {
+      return res.status(400).json({ message: "Invalid balance action" });
     }
 
-    const newBalance = Number(availableBalance);
+    const numericAmount = Number(amount);
+
+    if (!Number.isFinite(numericAmount) || numericAmount < 0) {
+      return res.status(400).json({ message: "Invalid balance amount" });
+    }
+
+    const userResult = await pool.query(
+      `SELECT available_balance
+       FROM users
+       WHERE id = $1`,
+      [userId],
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const currentBalance = Number(userResult.rows[0].available_balance);
+
+    let newBalance: number;
+
+    if (action === "set") {
+      newBalance = numericAmount;
+    } else if (action === "increase") {
+      newBalance = currentBalance + numericAmount;
+    } else {
+      newBalance = currentBalance - numericAmount;
+    }
 
     if (newBalance < 0) {
       return res.status(400).json({
-        message: "Available balance cannot be negative",
+        message: "Insufficient balance for this deduction",
       });
     }
 
@@ -270,12 +304,6 @@ router.patch("/users/:id/balance", async (req, res) => {
       [newBalance, userId],
     );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        message: "User not found",
-      });
-    }
-
     return res.json(result.rows[0]);
   } catch (error) {
     console.error("Update user balance failed:", error);
@@ -284,17 +312,4 @@ router.patch("/users/:id/balance", async (req, res) => {
       message: "Failed to update user balance",
     });
   }
-})
-    if (error.code === "23505") {
-      return res.status(409).json({
-        message: "Username or account number already exists",
-      });
-    }
-
-    return res.status(500).json({
-      message: "Internal server error",
-    });
-  }
 });
-
-export default router;
