@@ -67,8 +67,20 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <main className="flex-1 flex flex-col min-w-0">
         {/* Mobile Header */}
         <header className="md:hidden h-16 bg-sidebar border-b border-sidebar-border flex items-center justify-between px-4">
-          <Link href="/dashboard">
-            <img src={chaseLogo} alt="Chase" className="h-8 object-contain" />
+          <Link
+            href="/dashboard"
+            className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2"
+          >
+            <span
+              className="relative flex h-8 w-8 items-center justify-center"
+              aria-hidden="true"
+            >
+              <span className="absolute h-7 w-7 rotate-45 border-[5px] border-[#117aca]" />
+              <span className="absolute h-3 w-3 rotate-45 bg-white" />
+            </span>
+            <span className="text-2xl font-bold tracking-tight text-white">
+              CHASE
+            </span>
           </Link>
           <button onClick={logout} className="text-sidebar-foreground p-2">
             <LogOut className="w-5 h-5" />
