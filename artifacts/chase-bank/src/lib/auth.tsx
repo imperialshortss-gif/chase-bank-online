@@ -21,6 +21,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
   const [isAdmin, setIsAdmin] = useState<boolean>(() => localStorage.getItem("chase_is_admin") === "true");
   const [, setLocation] = useLocation();
+  const [usageRestricted, setUsageRestricted] = useState(false);
 
   const login = (newToken: string, newUser: UserProfile | null, newIsAdmin: boolean) => {
     localStorage.setItem("chase_token", newToken);
@@ -31,6 +32,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsAdmin(newIsAdmin);
   };
 
+  useEffect(() => {
+    if (!token || isAdmin) {
+      setUsageRestricted(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    const checkUsageRestriction = async () => {
+      try {
+        const response = await fetch("/api/users/me/dashboard", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+        if (!cancelled) {
+          setUsageRestricted(Boolean(data?.user?.usageRestricted));
+        }
+      } catch {
+        // Keep the existing session if the status check temporarily fails.
+      }
+    };
+
+    checkUsageRestriction();
+    const interval = window.setInterval(checkUsageRestriction, 5000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [token, isAdmin]);
+
   const logout = () => {
     localStorage.removeItem("chase_token");
     localStorage.removeItem("chase_user");
@@ -38,8 +75,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(null);
     setUser(null);
     setIsAdmin(false);
+    setUsageRestricted(false);
     setLocation("/");
   };
+
+  if (usageRestricted && !isAdmin) {
+    return (
+      <AuthContext.Provider value={{ token, user, isAdmin, login, logout, isAuthenticated: !!token }}>
+        <div className="min-h-screen bg-[#0a2540] flex items-center justify-center px-6">
+          <div className="w-full max-w-md rounded-xl bg-white p-8 text-center shadow-2xl">
+            <h1 className="text-2xl font-bold text-[#0a2540]">
+              Account Access Restricted
+            </h1>
+            <p className="mt-4 text-gray-600">
+              Your account usage has temporarily been restricted.
+              Please contact your bank for assistance.
+            </p>
+            <button
+              onClick={logout}
+              className="mt-6 rounded-md bg-[#0a2540] px-6 py-3 font-semibold text-white"
+            >
+              Log Out
+            </button>
+          </div>
+        </div>
+      </AuthContext.Provider>
+    );
+  }
 
   return (
     <AuthContext.Provider value={{ token, user, isAdmin, login, logout, isAuthenticated: !!token }}>

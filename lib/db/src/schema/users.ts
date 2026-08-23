@@ -1,4 +1,4 @@
-import { pgTable, text, serial, numeric, timestamp, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, numeric, timestamp, pgEnum, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -16,6 +16,7 @@ export const usersTable = pgTable("users", {
   accountNumber: text("account_number").notNull().unique(),
   accountType: text("account_type").notNull().default("Checking"),
   accountStatus: text("account_status").notNull().default("Active"),
+  usageRestricted: boolean("usage_restricted").notNull().default(false),
   availableBalance: numeric("available_balance", { precision: 20, scale: 2 }).notNull().default("0.00"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

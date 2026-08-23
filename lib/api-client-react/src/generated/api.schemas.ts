@@ -34,6 +34,8 @@ export interface UserProfile {
   accountNumber: string;
   accountType: string;
   accountStatus: string;
+  usageRestricted: boolean;
+  usageRestricted: boolean;
   availableBalance: number;
   createdAt?: string;
 }
@@ -129,6 +131,10 @@ export interface AdminStats {
   completedTransfers: number;
 }
 
+export interface UpdateUsageRestrictionRequest {
+  usageRestricted: boolean;
+}
+
 export interface AdminUser {
   id: number;
   fullName: string;
@@ -139,6 +145,7 @@ export interface AdminUser {
   accountNumber: string;
   accountType: string;
   accountStatus: string;
+  usageRestricted: boolean;
   availableBalance: number;
   createdAt?: string;
 }
@@ -160,6 +167,8 @@ export interface CreateUserRequest {
   accountNumber?: string;
   accountType: string;
   accountStatus: string;
+  usageRestricted: boolean;
+  usageRestricted: boolean;
   availableBalance: number;
 }
 

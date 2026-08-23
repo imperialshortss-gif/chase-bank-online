@@ -293,6 +293,49 @@ export default router;
 /**
  * Update user balance
  */
+
+router.put("/users/:id/usage-restriction", async (req, res) => {
+  try {
+    const userId = Number(req.params.id);
+    const { restricted } = req.body;
+
+    if (!Number.isInteger(userId) || userId <= 0) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    if (typeof restricted !== "boolean") {
+      return res.status(400).json({
+        message: "restricted must be a boolean",
+      });
+    }
+
+    const result = await pool.query(
+      `UPDATE users
+       SET usage_restricted = $1
+       WHERE id = $2
+       RETURNING id, usage_restricted`,
+      [restricted, userId],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    return res.json({
+      id: result.rows[0].id,
+      usageRestricted: result.rows[0].usage_restricted,
+    });
+  } catch (error) {
+    console.error("Usage restriction update failed:", error);
+
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+});
+
 router.put("/users/:id/balance", async (req, res) => {
   try {
     const userId = Number(req.params.id);

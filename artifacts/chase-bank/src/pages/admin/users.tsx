@@ -86,6 +86,15 @@ const createMutation = useCreateAdminUser();
     });
   };
 
+  const handleUsageRestriction = async (userId: number, restricted: boolean) => {
+    const response = await fetch(`/api/admin/users/${userId}/usage-restriction`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ restricted }),
+    });
+    if (!response.ok) throw new Error("Failed to update usage restriction");
+  };
+
   const handleBalanceSubmit = () => {
     if (
       !balanceDialog.userId ||
@@ -308,6 +317,24 @@ const createMutation = useCreateAdminUser();
                               }
                             >
                               <DollarSign className="mr-2 h-4 w-4" /> Manage Balance
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="cursor-pointer dark:hover:bg-[#1a3857]"
+                              onClick={() =>
+                                handleUsageRestriction(user.id, !user.usageRestricted)
+                              }
+                            >
+                              {user.usageRestricted ? (
+                                <>
+                                  <ShieldCheck className="mr-2 h-4 w-4" />
+                                  Allow Usage
+                                </>
+                              ) : (
+                                <>
+                                  <ShieldAlert className="mr-2 h-4 w-4" />
+                                  Restrict Usage
+                                </>
+                              )}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator className="dark:bg-[#1a3857]" />
                             {user.accountStatus === "Active" ? (

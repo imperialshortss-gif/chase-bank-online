@@ -43,6 +43,7 @@ import type {
   TransferRequest,
   TransferResponse,
   UpdateBalanceRequest,
+  UpdateUsageRestrictionRequest,
   UpdateProfileRequest,
   UpdateStatusRequest,
   UpdateTransferStatusRequest,
@@ -1572,6 +1573,59 @@ export const useUpdateUserBalance = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getUpdateUserBalanceMutationOptions(options));
+    }
+
+export const getUpdateUserUsageRestrictionUrl = (id: number,) => {
+  return `/api/admin/users/${id}/usage-restriction`
+}
+
+/**
+ * @summary Restrict or allow user account usage
+ */
+export const updateUserUsageRestriction = async (id: number,
+    updateUsageRestrictionRequest: UpdateUsageRestrictionRequest, options?: RequestInit): Promise<AdminUser> => {
+
+  return customFetch<AdminUser>(getUpdateUserUsageRestrictionUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(updateUsageRestrictionRequest)
+  })
+}
+
+export const getUpdateUserUsageRestrictionMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateUserUsageRestriction>>, TError,{id: number;data: BodyType<UpdateUsageRestrictionRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateUserUsageRestriction>>, TError,{id: number;data: BodyType<UpdateUsageRestrictionRequest>}, TContext> => {
+
+const mutationKey = ['updateUserUsageRestriction'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateUserUsageRestriction>>, {id: number;data: BodyType<UpdateUsageRestrictionRequest>}> = (props) => {
+    const {id,data} = props ?? {};
+    return updateUserUsageRestriction(id,data,requestOptions)
+}
+
+return { mutationFn, ...mutationOptions }
+}
+
+export type UpdateUserUsageRestrictionMutationResult = NonNullable<Awaited<ReturnType<typeof updateUserUsageRestriction>>>
+export type UpdateUserUsageRestrictionMutationBody = BodyType<UpdateUsageRestrictionRequest>
+export type UpdateUserUsageRestrictionMutationError = ErrorType<unknown>
+
+export const useUpdateUserUsageRestriction = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateUserUsageRestriction>>, TError,{id: number;data: BodyType<UpdateUsageRestrictionRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateUserUsageRestriction>>,
+        TError,
+        {id: number;data: BodyType<UpdateUsageRestrictionRequest>},
+        TContext
+      > => {
+      return useMutation(getUpdateUserUsageRestrictionMutationOptions(options));
     }
 
 export const getAddAdminTransactionUrl = (id: number,) => {
