@@ -91,6 +91,7 @@ router.post("/", async (req, res) => {
         id,
         full_name,
         account_number,
+        usage_restricted,
         available_balance
        FROM users
        WHERE id = $1
@@ -105,6 +106,13 @@ router.post("/", async (req, res) => {
 
       return res.status(404).json({
         message: "User not found",
+      });
+    }
+
+    if (user.usage_restricted) {
+      await client.query("ROLLBACK");
+      return res.status(403).json({
+        message: "Account usage is currently restricted. Transfers are not available.",
       });
     }
 

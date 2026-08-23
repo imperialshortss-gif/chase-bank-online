@@ -109,6 +109,7 @@ router.get("/users", async (req, res) => {
          account_number AS "accountNumber",
          account_type AS "accountType",
          account_status AS "accountStatus",
+         usage_restricted AS "usageRestricted",
          available_balance AS "availableBalance",
          created_at AS "createdAt"
        FROM users
@@ -200,6 +201,7 @@ router.post("/users", async (req, res) => {
          account_number AS "accountNumber",
          account_type AS "accountType",
          account_status AS "accountStatus",
+         usage_restricted AS "usageRestricted",
          available_balance AS "availableBalance",
          created_at AS "createdAt"`,
       [
@@ -267,6 +269,7 @@ router.put("/users/:id/status", async (req, res) => {
          account_number AS "accountNumber",
          account_type AS "accountType",
          account_status AS "accountStatus",
+         usage_restricted AS "usageRestricted",
          available_balance AS "availableBalance",
          created_at AS "createdAt"`,
       [status, userId],
@@ -398,6 +401,7 @@ router.put("/users/:id/balance", async (req, res) => {
          account_number AS "accountNumber",
          account_type AS "accountType",
          account_status AS "accountStatus",
+         usage_restricted AS "usageRestricted",
          available_balance AS "availableBalance",
          created_at AS "createdAt"`,
       [newBalance, userId],

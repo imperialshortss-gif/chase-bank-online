@@ -87,30 +87,36 @@ const createMutation = useCreateAdminUser();
   };
 
   const handleUsageRestriction = async (userId: number, restricted: boolean) => {
-    const response = await fetch(`/api/admin/users/${userId}/usage-restriction`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ restricted }),
-    });
-    if (!response.ok) throw new Error("Failed to update usage restriction");
+    try {
+      const response = await fetch(`/api/admin/users/${userId}/usage-restriction`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ restricted }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update usage restriction");
+      }
+
+      await queryClient.invalidateQueries({ queryKey: getGetAdminUsersQueryKey() });
+
+      toast({
+        title: restricted ? "Usage restricted" : "Usage restored",
+        description: restricted
+          ? "The user can view their account but cannot use transfer services."
+          : "The user can use their account normally again.",
+      });
+    } catch {
+      toast({
+        title: "Update failed",
+        description: "Unable to update the user's usage restriction.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleBalanceSubmit = () => {
-    if (
-      !balanceDialog.userId ||
-      !balanceDialog.amount ||
-      !balanceDialog.description.trim()
-    ) {
-      toast({
-        title: "Missing fields",
-        description: "Amount and description are required.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     const amount = parseFloat(balanceDialog.amount);
-
     if (!Number.isFinite(amount) || amount <= 0) {
       toast({
         title: "Invalid amount",
@@ -122,7 +128,7 @@ const createMutation = useCreateAdminUser();
 
     addTransactionMutation.mutate(
       {
-        id: balanceDialog.userId,
+        id: balanceDialog.userId as number,
         data: {
           type: balanceDialog.type,
           amount,

@@ -97,13 +97,27 @@ export default function Dashboard() {
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight"><span className="sm:inline block">Welcome back,</span> <span className="whitespace-nowrap">{user.fullName}</span></h1>
           <p className="text-muted-foreground mt-1">Here's your account overview</p>
         </div>
-        <Link href="/transfer">
+        {user.usageRestricted ? (
+          <Button disabled className="gap-2 opacity-50 cursor-not-allowed" data-testid="button-transfer-funds">
+            <ArrowRightLeft className="w-4 h-4" />
+            Transfer Funds
+          </Button>
+        ) : (
+          <Link href="/transfer">
           <Button className="gap-2" data-testid="button-transfer-funds">
             <ArrowRightLeft className="w-4 h-4" />
             Transfer Funds
           </Button>
-        </Link>
+          </Link>
+        )}
       </div>
+
+      {user.usageRestricted && (
+        <div className="rounded-lg border border-red-300 bg-red-50 px-5 py-4 text-red-700 shadow-sm">
+          <p className="font-semibold">Account Usage Restricted</p>
+          <p className="mt-1 text-sm">Your account is currently restricted from using transfer services. You can still view your balance, account information, and transaction history. Please contact your bank for assistance.</p>
+        </div>
+      )}
 
       {/* Balance Card */}
       <motion.div custom={0} variants={cardVariants} initial="hidden" animate="visible">

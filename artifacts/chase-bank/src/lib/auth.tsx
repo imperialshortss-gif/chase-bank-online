@@ -79,30 +79,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLocation("/");
   };
 
-  if (usageRestricted && !isAdmin) {
-    return (
-      <AuthContext.Provider value={{ token, user, isAdmin, login, logout, isAuthenticated: !!token }}>
-        <div className="min-h-screen bg-[#0a2540] flex items-center justify-center px-6">
-          <div className="w-full max-w-md rounded-xl bg-white p-8 text-center shadow-2xl">
-            <h1 className="text-2xl font-bold text-[#0a2540]">
-              Account Access Restricted
-            </h1>
-            <p className="mt-4 text-gray-600">
-              Your account usage has temporarily been restricted.
-              Please contact your bank for assistance.
-            </p>
-            <button
-              onClick={logout}
-              className="mt-6 rounded-md bg-[#0a2540] px-6 py-3 font-semibold text-white"
-            >
-              Log Out
-            </button>
-          </div>
-        </div>
-      </AuthContext.Provider>
-    );
-  }
-
   return (
     <AuthContext.Provider value={{ token, user, isAdmin, login, logout, isAuthenticated: !!token }}>
       {children}
