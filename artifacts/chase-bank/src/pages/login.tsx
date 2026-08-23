@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/hooks/use-toast";
 import chaseLogo from "@assets/images_1783889036399.png";
 import { motion } from "framer-motion";
+import { useState } from "react";
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -21,8 +21,8 @@ const loginSchema = z.object({
 export default function Login() {
   const { login } = useAuth();
   const [, setLocation] = useLocation();
-  const { toast } = useToast();
   const loginMutation = useLogin();
+  const [loginError, setLoginError] = useState("");
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -34,17 +34,15 @@ export default function Login() {
   });
 
   function onSubmit(values: z.infer<typeof loginSchema>) {
+    setLoginError("");
+
     loginMutation.mutate({ data: values }, {
       onSuccess: (res) => {
         login(res.token, res.user || null, res.isAdmin);
         setLocation(res.isAdmin ? "/admin/dashboard" : "/dashboard");
       },
       onError: (err: any) => {
-        toast({
-          title: "Login failed",
-          description: err.message || "Invalid credentials",
-          variant: "destructive",
-        });
+        setLoginError(err.message || "Invalid credentials");
       }
     });
   }
@@ -74,6 +72,12 @@ export default function Login() {
           </div>
 
           <Form {...form}>
+            {loginError && (
+              <div className="mb-6 rounded-md border border-red-500/50 bg-red-500/10 px-4 py-3 text-center text-sm font-medium text-red-500">
+                {loginError}
+              </div>
+            )}
+
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
