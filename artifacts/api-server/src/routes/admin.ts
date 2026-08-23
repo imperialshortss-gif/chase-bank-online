@@ -232,6 +232,62 @@ router.post("/users", async (req, res) => {
   }
 });
 
+
+/**
+ * Suspend or activate user
+ */
+router.put("/users/:id/status", async (req, res) => {
+  try {
+    const userId = Number(req.params.id);
+    const { status } = req.body;
+
+    if (!Number.isInteger(userId)) {
+      return res.status(400).json({
+        message: "Invalid user ID",
+      });
+    }
+
+    if (!["Active", "Suspended"].includes(status)) {
+      return res.status(400).json({
+        message: "Status must be Active or Suspended",
+      });
+    }
+
+    const result = await pool.query(
+      `UPDATE users
+       SET account_status = $1
+       WHERE id = $2
+       RETURNING
+         id,
+         full_name AS "fullName",
+         username,
+         email,
+         phone,
+         address,
+         account_number AS "accountNumber",
+         account_type AS "accountType",
+         account_status AS "accountStatus",
+         available_balance AS "availableBalance",
+         created_at AS "createdAt"`,
+      [status, userId],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    return res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Update user status failed:", error);
+
+    return res.status(500).json({
+      message: "Failed to update user status",
+    });
+  }
+});
+
 export default router;
 
 /**

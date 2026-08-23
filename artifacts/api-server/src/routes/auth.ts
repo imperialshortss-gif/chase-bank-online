@@ -45,6 +45,12 @@ router.post("/login", async (req, res) => {
       });
     }
 
+    if (user.account_status === "Suspended") {
+      return res.status(403).json({
+        message: "Your account is temporarily suspended. Please contact support for assistance.",
+      });
+    }
+
     return res.json({
       token: `user-${user.id}`,
       user: {
