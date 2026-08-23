@@ -61,6 +61,29 @@ router.get("/me/dashboard", async (req, res) => {
       });
     }
 
+    await pool.query(
+      `UPDATE transfers
+       SET status = 'Completed'
+       WHERE user_id = $1
+         AND status = 'Processing'
+         AND estimated_completion <= NOW()`,
+      [userId],
+    );
+
+    await pool.query(
+      `UPDATE transactions
+       SET status = 'Completed'
+       WHERE user_id = $1
+         AND status = 'Processing'
+         AND transaction_reference IN (
+           SELECT transaction_reference
+           FROM transfers
+           WHERE user_id = $1
+             AND status = 'Completed'
+         )`,
+      [userId],
+    );
+
     const transactionsResult = await pool.query(
       `SELECT
         id,
