@@ -17,6 +17,7 @@ export const usersTable = pgTable("users", {
   accountType: text("account_type").notNull().default("Checking"),
   accountStatus: text("account_status").notNull().default("Active"),
   usageRestricted: boolean("usage_restricted").notNull().default(false),
+  customNotice: text("custom_notice"),
   availableBalance: numeric("available_balance", { precision: 20, scale: 2 }).notNull().default("0.00"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
