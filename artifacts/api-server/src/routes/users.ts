@@ -1,3 +1,4 @@
+// Dashboard API includes per-user custom notices.
 import { Router } from "express";
 import { Pool } from "pg";
 
