@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { formatCurrency } from "@/lib/utils";
-import { Search, MoreVertical, ShieldAlert, DollarSign, Eye, ShieldCheck, Banknote, UserPlus } from "lucide-react";
+import { Search, MoreVertical, ShieldAlert, DollarSign, Eye, ShieldCheck, Banknote, UserPlus, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
@@ -61,6 +61,17 @@ export default function AdminUsers() {
   description: "",
   transactionDate: new Date().toISOString().split("T")[0],
 });
+  const [noticeDialog, setNoticeDialog] = useState<{
+    open: boolean;
+    userId: number | null;
+    userName: string;
+    notice: string;
+  }>({
+    open: false,
+    userId: null,
+    userName: "",
+    notice: "",
+  });
   const [createOpen, setCreateOpen] = useState(false);
   const [createForm, setCreateForm] = useState<CreateForm>(defaultCreate);
 
@@ -110,6 +121,50 @@ const createMutation = useCreateAdminUser();
       toast({
         title: "Update failed",
         description: "Unable to update the user's usage restriction.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleNoticeSubmit = async () => {
+    if (noticeDialog.userId === null) return;
+
+    try {
+      const response = await fetch(
+        `/api/admin/users/${noticeDialog.userId}/dashboard-notice`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ notice: noticeDialog.notice }),
+        },
+      );
+
+      if (!response.ok) {
+        const body = await response.json().catch(() => null);
+        throw new Error(body?.message || "Failed to save dashboard notice");
+      }
+
+      await queryClient.invalidateQueries({
+        queryKey: getGetAdminUsersQueryKey(),
+      });
+
+      toast({
+        title: noticeDialog.notice.trim() ? "Notice saved" : "Notice removed",
+        description: noticeDialog.notice.trim()
+          ? `The dashboard notice for ${noticeDialog.userName} has been updated.`
+          : `The dashboard notice for ${noticeDialog.userName} has been removed.`,
+      });
+
+      setNoticeDialog({
+        open: false,
+        userId: null,
+        userName: "",
+        notice: "",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Notice update failed",
+        description: error?.message || "Unable to update the dashboard notice.",
         variant: "destructive",
       });
     }
@@ -327,6 +382,19 @@ const createMutation = useCreateAdminUser();
                             <DropdownMenuItem
                               className="cursor-pointer dark:hover:bg-[#1a3857]"
                               onClick={() =>
+                                setNoticeDialog({
+                                  open: true,
+                                  userId: user.id,
+                                  userName: user.fullName,
+                                  notice: (user as any).customNotice || "",
+                                })
+                              }
+                            >
+                              <MessageSquare className="mr-2 h-4 w-4" /> Dashboard Notice
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="cursor-pointer dark:hover:bg-[#1a3857]"
+                              onClick={() =>
                                 handleUsageRestriction(user.id, !user.usageRestricted)
                               }
                             >
@@ -460,6 +528,67 @@ const createMutation = useCreateAdminUser();
               disabled={updateBalanceMutation.isPending || !balanceDialog.amount}
             >
               {updateBalanceMutation.isPending ? "Executing..." : "Execute Ledger Update"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dashboard Notice Dialog */}
+      <Dialog
+        open={noticeDialog.open}
+        onOpenChange={(open) =>
+          setNoticeDialog((prev) => ({ ...prev, open }))
+        }
+      >
+        <DialogContent className="dark:bg-[#0a2540] dark:border-[#1a3857] sm:max-w-[560px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-white">
+              <MessageSquare className="w-5 h-5 text-[#c9a227]" />
+              Dashboard Notice
+            </DialogTitle>
+            <DialogDescription className="text-gray-400">
+              Set a private notice that will appear on this customer's dashboard.
+              Leave it blank to remove the current notice.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-2 py-4">
+            <label className="text-sm font-medium text-gray-300">
+              Notice for {noticeDialog.userName}
+            </label>
+            <textarea
+              rows={6}
+              maxLength={2000}
+              placeholder="Enter the message you want this customer to see..."
+              className="w-full rounded-md border border-[#1a3857] bg-[#020b18] p-3 text-white placeholder:text-gray-600 outline-none focus:ring-2 focus:ring-[#c9a227]"
+              value={noticeDialog.notice}
+              onChange={(e) =>
+                setNoticeDialog((prev) => ({
+                  ...prev,
+                  notice: e.target.value,
+                }))
+              }
+            />
+            <p className="text-xs text-gray-500">
+              {noticeDialog.notice.length}/2000 characters
+            </p>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() =>
+                setNoticeDialog((prev) => ({ ...prev, open: false }))
+              }
+              className="border-[#1a3857] text-gray-300 hover:bg-[#1a3857] hover:text-white"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleNoticeSubmit}
+              className="bg-[#c9a227] hover:bg-[#b08d22] text-[#0a2540] font-semibold"
+            >
+              Save Notice
             </Button>
           </DialogFooter>
         </DialogContent>
