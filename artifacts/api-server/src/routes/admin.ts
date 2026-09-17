@@ -110,6 +110,7 @@ router.get("/users", async (req, res) => {
          account_type AS "accountType",
          account_status AS "accountStatus",
          usage_restricted AS "usageRestricted",
+         custom_notice AS "customNotice",
          available_balance AS "availableBalance",
          created_at AS "createdAt"
        FROM users
@@ -202,6 +203,7 @@ router.post("/users", async (req, res) => {
          account_type AS "accountType",
          account_status AS "accountStatus",
          usage_restricted AS "usageRestricted",
+         custom_notice AS "customNotice",
          available_balance AS "availableBalance",
          created_at AS "createdAt"`,
       [
@@ -270,6 +272,7 @@ router.put("/users/:id/status", async (req, res) => {
          account_type AS "accountType",
          account_status AS "accountStatus",
          usage_restricted AS "usageRestricted",
+         custom_notice AS "customNotice",
          available_balance AS "availableBalance",
          created_at AS "createdAt"`,
       [status, userId],
@@ -287,6 +290,49 @@ router.put("/users/:id/status", async (req, res) => {
 
     return res.status(500).json({
       message: "Failed to update user status",
+    });
+  }
+});
+
+/**
+ * Set or clear a custom dashboard notice for a specific user
+ */
+router.put("/users/:id/dashboard-notice", async (req, res) => {
+  try {
+    const userId = Number(req.params.id);
+    const notice =
+      req.body?.notice === null || req.body?.notice === undefined
+        ? ""
+        : String(req.body.notice).trim();
+
+    if (!Number.isInteger(userId) || userId <= 0) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    if (notice.length > 2000) {
+      return res.status(400).json({
+        message: "Dashboard notice must be 2000 characters or less",
+      });
+    }
+
+    const result = await pool.query(
+      `UPDATE users
+       SET custom_notice = NULLIF($1, '')
+       WHERE id = $2
+       RETURNING id, custom_notice AS "customNotice"`,
+      [notice, userId],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Dashboard notice update failed:", error);
+
+    return res.status(500).json({
+      message: "Failed to update dashboard notice",
     });
   }
 });
@@ -402,6 +448,7 @@ router.put("/users/:id/balance", async (req, res) => {
          account_type AS "accountType",
          account_status AS "accountStatus",
          usage_restricted AS "usageRestricted",
+         custom_notice AS "customNotice",
          available_balance AS "availableBalance",
          created_at AS "createdAt"`,
       [newBalance, userId],
