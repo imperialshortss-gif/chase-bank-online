@@ -1,3 +1,4 @@
+// Admin user dashboard notice controls.
 import { useState } from "react";
 import {
   useGetAdminUsers,
