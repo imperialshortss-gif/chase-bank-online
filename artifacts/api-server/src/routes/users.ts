@@ -46,6 +46,7 @@ router.get("/me/dashboard", async (req, res) => {
         account_status,
         available_balance,
         usage_restricted,
+        custom_notice,
         created_at
        FROM users
        WHERE id = $1
@@ -145,6 +146,7 @@ router.get("/me/dashboard", async (req, res) => {
         accountType: user.account_type,
         accountStatus: user.account_status,
         usageRestricted: Boolean(user.usage_restricted),
+        customNotice: user.custom_notice || null,
         availableBalance: Number(user.available_balance),
         createdAt: user.created_at,
       },
