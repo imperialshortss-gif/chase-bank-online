@@ -57,6 +57,7 @@ export default function Dashboard() {
   }
 
   const { user, currentBalance, monthlyDeposits, monthlyWithdrawals, totalTransactions, recentTransactions } = data;
+  const customNotice = (user as typeof user & { customNotice?: string | null }).customNotice;
 
   const summaryCards = [
     {
@@ -111,6 +112,13 @@ export default function Dashboard() {
           </Link>
         )}
       </div>
+
+      {customNotice && (
+        <div className="rounded-lg border border-blue-200 bg-blue-50 px-5 py-4 text-blue-900 shadow-sm">
+          <p className="font-semibold">Important Notice</p>
+          <p className="mt-1 text-sm whitespace-pre-wrap">{customNotice}</p>
+        </div>
+      )}
 
       {user.usageRestricted && (
         <div className="rounded-lg border border-red-300 bg-red-50 px-5 py-4 text-red-700 shadow-sm">
