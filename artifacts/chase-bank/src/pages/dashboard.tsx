@@ -115,7 +115,7 @@ export default function Dashboard() {
 
       {customNotice && (
         <div className="rounded-lg border border-blue-200 bg-blue-50 px-5 py-4 text-blue-900 shadow-sm">
-          <p className="font-semibold">Important Notice</p>
+          <p className="font-semibold text-red-600">Important Notice</p>
           <p className="mt-1 text-sm whitespace-pre-wrap">{customNotice}</p>
         </div>
       )}
