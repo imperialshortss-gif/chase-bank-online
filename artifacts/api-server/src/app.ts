@@ -5,7 +5,16 @@ import authRouter from "./routes/auth.js";
 import adminRouter from "./routes/admin.js";
 import usersRouter from "./routes/users.js";
 import transfersRouter from "./routes/transfers.js";
+import { Pool } from "pg";
 const app = express();
+
+const migrationPool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+
+migrationPool
+  .query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS custom_notice TEXT`)
+  .catch((error) => console.error("Custom notice migration failed:", error));
 
 app.use(cors());
 app.use(express.json());
