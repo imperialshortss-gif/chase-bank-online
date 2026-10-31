@@ -3,33 +3,63 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#10243a" />
-    <title>Account Demo</title>
+    <meta name="theme-color" content="#14283f" />
+    <title>Website Portal</title>
     <style>
       :root { color-scheme: light; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
       * { box-sizing: border-box; }
       body { margin: 0; min-height: 100vh; background: #f3f6fa; color: #15263a; }
-      header { padding: 22px 20px; color: #fff; background: #10243a; }
+      header { padding: 22px 20px; color: #fff; background: #14283f; }
       header strong { font-size: 1.1rem; letter-spacing: .02em; }
-      main { max-width: 560px; margin: 0 auto; padding: 24px 18px; }
-      .notice { padding: 14px 16px; border: 1px solid #e5b94b; border-radius: 12px; background: #fff8df; color: #5a4510; font-size: .9rem; line-height: 1.5; }
-      .card { margin-top: 18px; padding: 20px; border: 1px solid #dce4ed; border-radius: 16px; background: #fff; box-shadow: 0 4px 16px rgb(20 40 60 / 5%); }
-      h1 { margin: 0 0 8px; font-size: 1.45rem; }
+      main { max-width: 560px; margin: 0 auto; padding: 26px 18px; }
+      .card { padding: 22px; border: 1px solid #dce4ed; border-radius: 16px; background: #fff; box-shadow: 0 4px 16px rgb(20 40 60 / 5%); }
+      h1 { margin: 0 0 8px; font-size: 1.5rem; }
       p { line-height: 1.55; }
-      .muted { color: #5b6b7d; font-size: .95rem; }
+      .muted { color: #5b6b7d; font-size: .94rem; }
+      label { display: block; margin: 20px 0 8px; font-weight: 650; }
+      input { width: 100%; padding: 13px 12px; border: 1px solid #b8c5d3; border-radius: 9px; font: inherit; }
+      button { width: 100%; margin-top: 14px; padding: 14px; border: 0; border-radius: 9px; background: #173f68; color: white; font: inherit; font-weight: 700; }
+      .notice { margin-top: 16px; padding: 12px 14px; border: 1px solid #dce4ed; border-radius: 10px; color: #46576a; font-size: .84rem; line-height: 1.5; }
+      #error { color: #a32626; font-size: .9rem; }
       footer { padding: 18px; color: #5b6b7d; text-align: center; font-size: .8rem; }
     </style>
   </head>
   <body>
-    <header><strong>Account Demo</strong></header>
+    <header><strong>Website Portal</strong></header>
     <main>
-      <div class="notice"><strong>Demonstration app.</strong> This independent sample is not a bank and is not affiliated with, endorsed by, or authorized by any financial institution. It does not provide real banking or money-transfer services.</div>
       <section class="card">
-        <h1>Android app starter</h1>
-        <p>This is the initial native-app shell. The existing website has not been changed.</p>
-        <p class="muted">The next development stage is to implement the independently branded demo interface and connect only appropriately authorized services before generating a release APK.</p>
+        <h1>Open your website</h1>
+        <p class="muted">Enter the address of a website you own or are authorized to access. This app does not collect or store your address.</p>
+        <form id="open-form">
+          <label for="site-url">Website address</label>
+          <input id="site-url" type="url" inputmode="url" placeholder="https://your-website.com" autocomplete="url" required />
+          <p id="error" role="alert" hidden></p>
+          <button type="submit">Open website</button>
+        </form>
+        <div class="notice">Independent website launcher. Not affiliated with or endorsed by any bank or other financial institution. Website features and security are provided by the website you choose.</div>
       </section>
     </main>
-    <footer>Independent demonstration • Not a financial institution</footer>
+    <footer>Website Portal</footer>
+    <script>
+      document.getElementById('open-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const field = document.getElementById('site-url');
+        const error = document.getElementById('error');
+        let url;
+        try { url = new URL(field.value.trim()); } catch (_) {}
+        if (!url || !['https:', 'http:'].includes(url.protocol) || !url.hostname.includes('.')) {
+          error.textContent = 'Enter a valid website address starting with https://';
+          error.hidden = false;
+          return;
+        }
+        if (url.protocol !== 'https:') {
+          error.textContent = 'For your security, use an HTTPS website address.';
+          error.hidden = false;
+          return;
+        }
+        error.hidden = true;
+        window.open(url.href, '_blank', 'noopener,noreferrer');
+      });
+    </script>
   </body>
 </html>
