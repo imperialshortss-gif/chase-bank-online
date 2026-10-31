@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.independent.accountdemo',
-  appName: 'Account Demo',
+  appId: 'com.independent.websiteportal',
+  appName: 'Website Portal',
   webDir: 'www',
   bundledWebRuntime: false,
   android: {
