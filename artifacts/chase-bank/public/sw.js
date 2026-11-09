@@ -1,4 +1,4 @@
-const CACHE_NAME = "chase-demo-shell-v1";
+const CACHE_NAME = "chase-online-shell-v2";
 const APP_SHELL = ["/", "/index.html", "/manifest.webmanifest", "/app-icon-192.svg", "/app-icon-512.svg"];
 
 self.addEventListener("install", (event) => {
