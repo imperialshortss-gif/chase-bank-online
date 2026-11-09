@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="40" fill="#123b70"/>
+  <rect x="28" y="28" width="136" height="136" rx="28" fill="#ffffff"/>
+  <path d="M96 48 137 72v48l-41 24-41-24V72z" fill="#123b70"/>
+  <path d="M96 63 124 79v34l-28 16-28-16V79z" fill="#ffffff"/>
+  <path d="M96 63v34l28 16V79z" fill="#2f78bd"/>
+  <path d="M68 79v34l28-16V63z" fill="#1b4f85"/>
+  <text x="96" y="155" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#123b70">DEMO</text>
+</svg>
