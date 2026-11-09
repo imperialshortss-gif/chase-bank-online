@@ -5,5 +5,5 @@
   <path d="M96 63 124 79v34l-28 16-28-16V79z" fill="#ffffff"/>
   <path d="M96 63v34l28 16V79z" fill="#2f78bd"/>
   <path d="M68 79v34l28-16V63z" fill="#1b4f85"/>
-  <text x="96" y="155" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="700" fill="#123b70">DEMO</text>
+  <text x="96" y="155" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" font-weight="700" fill="#123b70">CHASE ONLINE</text>
 </svg>
