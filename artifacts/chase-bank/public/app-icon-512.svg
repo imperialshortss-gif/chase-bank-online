@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="108" fill="#123b70"/>
+  <rect x="74" y="74" width="364" height="364" rx="76" fill="#ffffff"/>
+  <path d="M256 128 366 192v128l-110 64-110-64V192z" fill="#123b70"/>
+  <path d="M256 168 330 210v92l-74 42-74-42v-92z" fill="#ffffff"/>
+  <path d="M256 168v92l74 42v-92z" fill="#2f78bd"/>
+  <path d="M182 210v92l74-42v-92z" fill="#1b4f85"/>
+  <text x="256" y="414" text-anchor="middle" font-family="Arial,sans-serif" font-size="36" font-weight="700" fill="#123b70">DEMO</text>
+</svg>
