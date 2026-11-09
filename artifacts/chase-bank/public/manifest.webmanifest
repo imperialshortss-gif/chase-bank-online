@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "Chase Demo",
-  "short_name": "Chase Demo",
+  "name": "Chase Portal",
+  "short_name": "Chase Portal",
   "description": "Unofficial banking website prototype",
   "start_url": "/",
   "scope": "/",
